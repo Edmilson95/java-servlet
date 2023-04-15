@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
+import com.thoughtworks.xstream.XStream;
 
 import br.com.alura.gerenciador.modelo.Banco;
 import br.com.alura.gerenciador.modelo.Empresa;
@@ -28,11 +29,46 @@ public class EmpresasService extends HttpServlet {
 		
 		List<Empresa> empresas = new Banco().getEmpresas();
 		
-		Gson gson = new Gson();
-		String json = gson.toJson(empresas);
+		String valor = request.getHeader("Accept");
 		
-		response.setContentType("application/json");
-		response.getWriter().print(json);
+		System.out.println(valor);
+		
+		if(valor.contains("xml")) { //retorna um arquivo(baixado) e não sei o motivo :´)
+			XStream xstream = new XStream();
+			xstream.alias("empresas", Empresa.class);
+			String xml = xstream.toXML(empresas);
+			
+			response.setContentType("aplication/xml");
+			response.getWriter().print(xml);
+			
+		} else if (valor.endsWith("json")) {
+			Gson gson = new Gson();
+			String json = gson.toJson(empresas);
+			
+			response.setContentType("application/json");
+			response.getWriter().print(json);
+			
+		} else {
+			response.setContentType("application/json");
+			response.getWriter().print("{'message':'no content'}");	
+		}
+		
+
+//		
+//		Gson gson = new Gson();
+//		String json = gson.toJson(empresas);
+//		
+//		response.setContentType("application/json");
+//		response.getWriter().print(json);
+//		
+//		XStream xstream = new XStream();
+//		String xml = xstream.toXML(empresas);
+//		
+//		response.setContentType("aplication/xml");
+//		response.getWriter().print(xml);
+		
+		
+		
 		
 	}
 }
